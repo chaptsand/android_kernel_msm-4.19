@@ -70,7 +70,7 @@ ifeq ($(TARGET_PRODUCT), cmi)
 	CDEFINES += -DCONFIG_TARGET_PRODUCT_UMI
 endif
 
-ifeq ($(TARGET_PRODUCT), umi)
+ifeq ($(TARGET_PRODUCT), umi lineage_umi)
 	CDEFINES += -DCONFIG_TARGET_PRODUCT_CMI
 endif
 
