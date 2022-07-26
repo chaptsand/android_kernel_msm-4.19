@@ -455,6 +455,7 @@ static const u32 hdd_sta_akm_suites[] = {
 	WLAN_AKM_SUITE_FT_FILS_SHA256,
 	WLAN_AKM_SUITE_FT_FILS_SHA384,
 	WLAN_AKM_SUITE_OWE,
+        WLAN_AKM_SUITE_DPP_RSN,
 };
 
 /*akm suits supported by AP*/
@@ -17097,10 +17098,15 @@ static int wlan_hdd_add_key_sta(struct hdd_adapter *adapter,
 	vdev = hdd_objmgr_get_vdev(adapter);
 	if (!vdev)
 		return -EINVAL;
+
+	hdd_start_install_key(adapter);
 	errno = wlan_cfg80211_crypto_add_key(vdev, (pairwise ?
 					     WLAN_CRYPTO_KEY_TYPE_UNICAST :
 					     WLAN_CRYPTO_KEY_TYPE_GROUP),
 					     key_index);
+	if (!errno)
+		errno = hdd_wait_for_install_key_complete(adapter);
+
 	hdd_objmgr_put_vdev(vdev);
 	if (!errno && adapter->send_mode_change) {
 		wlan_hdd_send_mode_change_event();
