@@ -7957,6 +7957,35 @@ void fts_secure_remove(struct fts_ts_info *info)
 
 #endif
 
+#ifdef CONFIG_TOUCHSCREEN_COMMON
+static ssize_t fod_status_show(struct kobject *kobj,
+                               struct kobj_attribute *attr, char *buf)
+{
+	if (!fts_info)
+		return -EINVAL;
+
+	return sprintf(buf, "%d\n", fts_info->fod_status);
+}
+
+static ssize_t fod_status_store(struct kobject *kobj,
+                                struct kobj_attribute *attr, const char *buf,
+                                size_t count)
+{
+	int val;
+
+	if (!fts_info || kstrtoint(buf, 10, &val))
+		return -EINVAL;
+
+	fts_info->fod_status = !!val;
+	return count;
+}
+
+static struct tp_common_ops fod_status_ops = {
+	.show = fod_status_show,
+	.store = fod_status_store,
+};
+#endif
+
 /**
  * Probe function, called when the driver it is matched with a device with the same name compatible name
  * This function allocate, initialize and define all the most important function and flow that are used by the driver to operate with the IC.
@@ -8212,6 +8241,7 @@ static int fts_probe(struct spi_device *client)
 
 #if defined(GESTURE_MODE) && defined(CONFIG_TOUCHSCREEN_COMMON)
 	tp_common_set_double_tap_ops(&double_tap_ops);
+	tp_common_set_fod_status_ops(&fod_status_ops);
 #endif
 
 	spin_lock_init(&fts_int);
